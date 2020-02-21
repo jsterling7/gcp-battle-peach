@@ -46,17 +46,18 @@ func Play(gameState model.GameState) string {
 	// if there is someone up to three spaces infront of me, I throw
 
 	//if my score is not increasing after five rounds or has decreased move forward if possible and if not turn right
+	if round > 3 {
+		if lastMove == "T" && myState.Score <= myScoreThreeRoundsAgo {
+			// if forward is a safe and unoccupided space I move forward
+			if isSafe := isForwardSafe(myState, otherPlayers, gameState.Arena.Dims); isSafe {
+				lastMove = "F"
+				return "F"
+			}
 
-	if lastMove == "T" && myState.Score <= myScoreThreeRoundsAgo {
-		// if forward is a safe and unoccupided space I move forward
-		if isSafe := isForwardSafe(myState, otherPlayers, gameState.Arena.Dims); isSafe {
-			lastMove = "F"
-			return "F"
+			// else I turn to face the most optimal position to set up the next throw
+			lastMove = "R"
+			return "R"
 		}
-
-		// else I turn to face the most optimal position to set up the next throw
-		lastMove = "R"
-		return "R"
 	}
 
 	// get hit spaces
