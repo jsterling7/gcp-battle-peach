@@ -14,6 +14,7 @@ var myScoreTwoRoundsAgo int
 var myScoreOneRoundAgo int
 
 var lastPostion model.Space
+var lastMove string
 
 var round int = 0
 
@@ -46,14 +47,16 @@ func Play(gameState model.GameState) string {
 
 	//if my score is not increasing after five rounds or has decreased move forward if possible and if not turn right
 
-	if round > 5 {
-		if myState.Score <= myScoreFiveRoundsAgo {
-			if myState.Space.X == lastPostion.X && myState.Space.Y == lastPostion.Y {
-				return "R"
-			} else {
-				return "F"
-			}
+	if lastMove == "T" && myState.Score <= myScoreThreeRoundsAgo {
+		// if forward is a safe and unoccupided space I move forward
+		if isSafe := isForwardSafe(myState, otherPlayers, gameState.Arena.Dims); isSafe {
+			lastMove = "F"
+			return "F"
 		}
+
+		// else I turn to face the most optimal position to set up the next throw
+		lastMove = "R"
+		return "R"
 	}
 
 	// get hit spaces
@@ -61,15 +64,18 @@ func Play(gameState model.GameState) string {
 
 	// look for player in those spaces
 	if _, inRange := playerInRange(otherPlayers, hitSpace1, hitSpace2, hitSpace3); inRange {
+		lastMove = "T"
 		return "T"
 	}
 
-	// if forward is a safe space I move forward
+	// if forward is a safe and unoccupided space I move forward
 	if isSafe := isForwardSafe(myState, otherPlayers, gameState.Arena.Dims); isSafe {
+		lastMove = "F"
 		return "F"
 	}
 
 	// else I turn to face the most optimal position to set up the next throw
+	lastMove = "R"
 	return "R"
 }
 
@@ -84,6 +90,13 @@ func isForwardSafe(player model.Player, otherPlayers map[string]model.Player, ar
 	potentialSpace := getForwardSpace(player, areanaDims)
 	if potentialSpace == nil {
 		return false
+	}
+
+	for _, player := range otherPlayers {
+		//anothe player is already in the space
+		if player.Space.X == potentialSpace.X && player.Space.Y == potentialSpace.Y {
+			return false
+		}
 	}
 
 	// 12 potential postions around player where another player could be and be in range
