@@ -7,11 +7,27 @@ import (
 //my url
 const myURL string = "https://gcp-battle-peach-j6hslvdfdq-ue.a.run.app/battle"
 
+var myScoreFiveRoundsAgo int
+var myScoreFourRoundsAgo int
+var myScoreThreeRoundsAgo int
+var myScoreTwoRoundsAgo int
+var myScoreOneRoundAgo int
+
+var lastPostion model.Space
+
+var round int = 0
+
 func Play(gameState model.GameState) string {
+
+	round = round + 1
 
 	myPlayerMap := getMyPlayerMap(gameState)
 
 	myState := myPlayerMap[myURL]
+
+	lastPostion = myState.Space
+
+	updateSavedScores(myState.Score)
 
 	otherPlayers := myPlayerMap
 	delete(otherPlayers, myState.Name)
@@ -28,6 +44,18 @@ func Play(gameState model.GameState) string {
 
 	// if there is someone up to three spaces infront of me, I throw
 
+	//if my score is not increasing after five rounds or has decreased move forward if possible and if not turn right
+
+	if round > 5 {
+		if myState.Score <= myScoreFiveRoundsAgo {
+			if myState.Space.X == lastPostion.X && myState.Space.Y == lastPostion.Y {
+				return "R"
+			} else {
+				return "F"
+			}
+		}
+	}
+
 	// get hit spaces
 	hitSpace1, hitSpace2, hitSpace3 := getHitSpaces(gameState.Arena.Dims, myState)
 
@@ -43,6 +71,13 @@ func Play(gameState model.GameState) string {
 
 	// else I turn to face the most optimal position to set up the next throw
 	return "R"
+}
+
+func updateSavedScores(myScore int) {
+	myScoreFiveRoundsAgo = myScoreFourRoundsAgo
+	myScoreFourRoundsAgo = myScoreThreeRoundsAgo
+	myScoreTwoRoundsAgo = myScoreOneRoundAgo
+	myScoreOneRoundAgo = myScore
 }
 
 func isForwardSafe(player model.Player, otherPlayers map[string]model.Player, areanaDims []int) bool {
