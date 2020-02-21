@@ -6,9 +6,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/jsterling7/gcp-battle-peach/model"
 	"github.com/jsterling7/gcp-battle-peach/gameEngine"
-
+	"github.com/jsterling7/gcp-battle-peach/model"
 )
 
 func Root(responseWriter http.ResponseWriter, request *http.Request) {
@@ -19,7 +18,6 @@ func Root(responseWriter http.ResponseWriter, request *http.Request) {
 
 	fmt.Fprint(responseWriter, "Welcome to Joshua Sterling's Battle Peach Microservice")
 }
-
 
 func Battle(responseWriter http.ResponseWriter, request *http.Request) {
 	if request.Method != "POST" {
@@ -38,9 +36,6 @@ func Battle(responseWriter http.ResponseWriter, request *http.Request) {
 	gameState := model.GameState{}
 
 	err = json.Unmarshal(body, &gameState)
-
-	fmt.Println(gameState)
-
 
 	if err != nil {
 	}
